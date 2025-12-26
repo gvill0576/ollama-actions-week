@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/*
 
 env:
   COURSE_NAME: "AI Cloud and DevOps Bootcamp"
@@ -43,10 +44,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Main branch only step
+        if: github.ref == 'refs/heads/main'
+        run: echo "✓ This step ONLY runs on main branch!"
+      
+      - name: Feature branch only step
+        if: startsWith(github.ref, 'refs/heads/feature/')
+        run: echo "✓ This step ONLY runs on feature branches!"
+      
+      - name: Cohort-specific step
+        if: env.COHORT == 'Echo'
+        run: echo "✓ Hello Echo cohort!"
+      
       - name: Create log file
+        id: create-log
         run: |
           echo "Workflow executed at: $(date)" > log.txt
-          echo "This workflow was triggered by a push to main" >> log.txt
+          echo "This workflow was triggered by a push" >> log.txt
       
       - name: Print working directory
         run: pwd
@@ -72,6 +86,7 @@ jobs:
           echo "Cohort: $COHORT" >> summary.txt
           echo "Triggered by: ${{ github.actor }}" >> summary.txt
           echo "Repository: ${{ github.repository }}" >> summary.txt
+          echo "Branch: ${{ github.ref }}" >> summary.txt
           echo "" >> summary.txt
           echo "Name:" >> summary.txt
           cat name.txt >> summary.txt
@@ -84,6 +99,10 @@ jobs:
         with:
           name: summary-report
           path: summary.txt
+      
+      - name: Cleanup on failure
+        if: failure()
+        run: echo "⚠️ Something went wrong! Running cleanup..."
   
   report:
     needs: build
@@ -101,4 +120,5 @@ jobs:
           cat summary.txt
       
       - name: Print completion message
+        if: success()
         run: echo "✓ Workflow completed successfully!"
