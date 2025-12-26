@@ -1,0 +1,42 @@
+name: Matrix Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  matrix-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        environment: [dev, prod]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Display matrix configuration
+        run: |
+          echo "Running on OS: ${{ matrix.os }}"
+          echo "Environment: ${{ matrix.environment }}"
+          echo "Runner name: ${{ runner.name }}"
+      
+      - name: Create environment-specific file
+        run: |
+          echo "OS: ${{ matrix.os }}" > config.txt
+          echo "Environment: ${{ matrix.environment }}" >> config.txt
+          cat config.txt
+      
+      - name: Run OS-specific command
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            echo "Running on Ubuntu Linux"
+            uname -a
+          else
+            echo "Running on macOS"
+            sw_vers
+          fi
