@@ -5,13 +5,28 @@ on:
     branches:
       - main
 
+env:
+  COURSE_NAME: "AI Cloud and DevOps Bootcamp"
+  COHORT: "Echo"
+
 jobs:
   automation-job:
     runs-on: ubuntu-latest
     
+    env:
+      REPORT_TITLE: "Automated Workflow Summary"
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Display environment variables
+        run: |
+          echo "Course: $COURSE_NAME"
+          echo "Cohort: $COHORT"
+          echo "Report Title: $REPORT_TITLE"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
       
       - name: Create log file
         run: |
@@ -36,8 +51,12 @@ jobs:
       
       - name: Generate summary report
         run: |
-          echo "=== SUMMARY REPORT ===" > summary.txt
+          echo "=== $REPORT_TITLE ===" > summary.txt
           echo "Generated at: $(date)" >> summary.txt
+          echo "Course: $COURSE_NAME" >> summary.txt
+          echo "Cohort: $COHORT" >> summary.txt
+          echo "Triggered by: ${{ github.actor }}" >> summary.txt
+          echo "Repository: ${{ github.repository }}" >> summary.txt
           echo "" >> summary.txt
           echo "Name:" >> summary.txt
           cat name.txt >> summary.txt
