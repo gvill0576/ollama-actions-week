@@ -10,7 +10,30 @@ env:
   COHORT: "Echo"
 
 jobs:
-  automation-job:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Verify name.txt exists
+        run: |
+          if [ ! -f name.txt ]; then
+            echo "ERROR: name.txt not found!"
+            exit 1
+          fi
+          echo "✓ name.txt exists"
+      
+      - name: Verify devops.txt exists
+        run: |
+          if [ ! -f devops.txt ]; then
+            echo "ERROR: devops.txt not found!"
+            exit 1
+          fi
+          echo "✓ devops.txt exists"
+  
+  build:
+    needs: setup
     runs-on: ubuntu-latest
     
     env:
@@ -19,14 +42,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Display environment variables
-        run: |
-          echo "Course: $COURSE_NAME"
-          echo "Cohort: $COHORT"
-          echo "Report Title: $REPORT_TITLE"
-          echo "Triggered by: ${{ github.actor }}"
-          echo "Repository: ${{ github.repository }}"
       
       - name: Create log file
         run: |
@@ -64,8 +79,26 @@ jobs:
           echo "DevOps Motivation:" >> summary.txt
           cat devops.txt >> summary.txt
       
-      - name: Display summary report
-        run: cat summary.txt
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: summary-report
+          path: summary.txt
+  
+  report:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download summary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: summary-report
       
-      - name: Print custom message
-        run: echo "Hello from George! Code Platoon represent!"
+      - name: Display final summary report
+        run: |
+          echo "=== FINAL REPORT ==="
+          cat summary.txt
+      
+      - name: Print completion message
+        run: echo "✓ Workflow completed successfully!"
