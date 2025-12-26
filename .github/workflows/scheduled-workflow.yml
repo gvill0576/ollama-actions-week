@@ -1,0 +1,29 @@
+name: Scheduled Workflow
+
+on:
+  schedule:
+    # Runs every day at midnight UTC
+    - cron: '0 0 * * *'
+  
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  scheduled-task:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run scheduled task
+        run: |
+          echo "Scheduled workflow executed at: $(date)" > scheduled-log.txt
+          echo "This is an automated daily check" >> scheduled-log.txt
+          cat scheduled-log.txt
+      
+      - name: Display repository status
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Latest commit: ${{ github.sha }}"
+          ls -la
