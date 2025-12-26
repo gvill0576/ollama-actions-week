@@ -1,0 +1,66 @@
+name: PR Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  pr-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check name.txt exists and is not empty
+        run: |
+          if [ ! -f name.txt ]; then
+            echo "ERROR: name.txt does not exist!"
+            exit 1
+          fi
+          if [ ! -s name.txt ]; then
+            echo "ERROR: name.txt is empty!"
+            exit 1
+          fi
+          echo "✓ name.txt exists and has content"
+      
+      - name: Check devops.txt exists and is not empty
+        run: |
+          if [ ! -f devops.txt ]; then
+            echo "ERROR: devops.txt does not exist!"
+            exit 1
+          fi
+          if [ ! -s devops.txt ]; then
+            echo "ERROR: devops.txt is empty!"
+            exit 1
+          fi
+          echo "✓ devops.txt exists and has content"
+      
+      - name: Display PR information
+        run: |
+          echo "PR Number: ${{ github.event.pull_request.number }}"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Author: ${{ github.event.pull_request.user.login }}"
+      
+      - name: Generate PR summary
+        run: |
+          echo "=== PR VALIDATION SUMMARY ===" > pr-summary.txt
+          echo "PR #${{ github.event.pull_request.number }}" >> pr-summary.txt
+          echo "Title: ${{ github.event.pull_request.title }}" >> pr-summary.txt
+          echo "Author: ${{ github.event.pull_request.user.login }}" >> pr-summary.txt
+          echo "" >> pr-summary.txt
+          echo "Name from name.txt:" >> pr-summary.txt
+          cat name.txt >> pr-summary.txt
+          echo "" >> pr-summary.txt
+          echo "Motivation from devops.txt:" >> pr-summary.txt
+          cat devops.txt >> pr-summary.txt
+          
+          cat pr-summary.txt
+      
+      - name: Comment on PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COMMENT=$(cat pr-summary.txt)
+          gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
