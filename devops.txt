@@ -1,1 +1,1 @@
-I am learning DevOps to automate all the things and become a cloud ninja!
+I'm learning DevOps to build automated cloud infrastructure and become a skilled cloud engineer.

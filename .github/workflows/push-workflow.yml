@@ -24,5 +24,29 @@ jobs:
       - name: Display log contents
         run: cat log.txt
       
+      - name: Read name.txt
+        run: |
+          echo "=== My Name ==="
+          cat name.txt
+      
+      - name: Read devops.txt
+        run: |
+          echo "=== Why I'm Learning DevOps ==="
+          cat devops.txt
+      
+      - name: Generate summary report
+        run: |
+          echo "=== SUMMARY REPORT ===" > summary.txt
+          echo "Generated at: $(date)" >> summary.txt
+          echo "" >> summary.txt
+          echo "Name:" >> summary.txt
+          cat name.txt >> summary.txt
+          echo "" >> summary.txt
+          echo "DevOps Motivation:" >> summary.txt
+          cat devops.txt >> summary.txt
+      
+      - name: Display summary report
+        run: cat summary.txt
+      
       - name: Print custom message
         run: echo "Hello from George! Code Platoon represent!"
